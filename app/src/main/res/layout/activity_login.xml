@@ -38,13 +38,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-            <TextView
+         <!--   <TextView
                     android:id="@+id/tv_uuid"
                     android:textColor="@android:color/black"
                     android:layout_alignParentBottom="true"
                     android:layout_width="match_parent"
                     tools:text="uuid"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"/> -->
 
             <ScrollView
                     android:id="@+id/login_form"

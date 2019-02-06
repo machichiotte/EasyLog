@@ -6,6 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.whitedev.easylog.pojo.Barcode
+import com.whitedev.easylog.utils.Constants.Companion.ERROR_EXPIRED_TOKEN
+import com.whitedev.easylog.utils.Constants.Companion.ERROR_MISSING_TRACKING
+import com.whitedev.easylog.utils.Constants.Companion.ERROR_MISSING_ZONE
+import com.whitedev.easylog.utils.Constants.Companion.ERROR_SAME_ZONE
 import kotlinx.android.synthetic.main.item_barcode.view.*
 
 class BarcodeAdapter(val items: ArrayList<Barcode>, val context: Context?) : RecyclerView.Adapter<ViewHolder>() {
@@ -33,7 +37,11 @@ class BarcodeAdapter(val items: ArrayList<Barcode>, val context: Context?) : Rec
             }
             "ZONE" -> {
             }
-            "ERROR" -> {
+
+            ERROR_SAME_ZONE,
+            ERROR_MISSING_ZONE,
+            ERROR_MISSING_TRACKING,
+            ERROR_EXPIRED_TOKEN -> {
                 holder.tvBarcode.setTextColor(context!!.resources.getColor(R.color.red))
                 holder.tvSent.setTextColor(context!!.resources.getColor(R.color.red))
             }

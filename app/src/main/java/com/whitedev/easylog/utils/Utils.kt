@@ -1,10 +1,10 @@
 package com.whitedev.easylog.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.media.MediaPlayer
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
+import android.provider.Settings
 import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
@@ -44,21 +44,30 @@ class Utils {
         }
 
         fun isInternetconnected(ct: Context): Boolean {
-            val connected: Boolean
-            //get the connectivity manager object to identify the network state.
-            val connectivityManager = ct.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            //Check if the manager object is NULL, this check is required. to prevent crashes in few devices.
-            if (connectivityManager != null) {
-                //Check Mobile data or Wifi net is present
 
-                connected = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).state ==
-                        NetworkInfo.State.CONNECTED || connectivityManager.getNetworkInfo(
-                    ConnectivityManager.TYPE_WIFI
-                ).state == NetworkInfo.State.CONNECTED
-                return connected
-            } else {
-                return false
-            }
+            //todo remettre quand phone
+            return true
+
+
+            /*
+              val connected: Boolean
+              //get the connectivity manager object to identify the network state.
+              val connectivityManager = ct.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+              //Check if the manager object is NULL, this check is required. to prevent crashes in few devices.
+
+
+              if (connectivityManager != null) {
+                  //Check Mobile data or Wifi net is present
+
+                  connected = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).state ==
+                          NetworkInfo.State.CONNECTED || connectivityManager.getNetworkInfo(
+                      ConnectivityManager.TYPE_WIFI
+                  ).state == NetworkInfo.State.CONNECTED
+                  return connected
+              } else {
+                  return false
+              } */
+
         }
 
         fun playNotif(context: Context?, isSuccess: Boolean) = try {
@@ -97,5 +106,13 @@ class Utils {
             return baseUrl
         }
 
+
+        @SuppressLint("HardwareIds")
+        fun getBtDeviceId(context: Context): String {
+            return Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.ANDROID_ID
+            )
+        }
     }
 }

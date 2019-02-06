@@ -1,24 +1,21 @@
 package com.whitedev.easylog
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.ActivityCompat
+import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
-import android.telephony.TelephonyManager
 import android.widget.Toast
+import com.whitedev.easylog.pojo.ApiJerem
 import com.whitedev.easylog.utils.Constants.Companion.BASE_URL
 import com.whitedev.easylog.utils.Constants.Companion.PREFS_ID
 import com.whitedev.easylog.utils.Constants.Companion.REQUEST_PHONE_STATE
 import com.whitedev.easylog.utils.Constants.Companion.SUCCESS
 import com.whitedev.easylog.utils.Constants.Companion.USER_BASE_URL
 import com.whitedev.easylog.utils.Constants.Companion.USER_TOKEN
-import com.whitedev.easylog.pojo.ApiJerem
 import com.whitedev.easylog.utils.Utils
 import kotlinx.android.synthetic.main.activity_splash.*
 import retrofit2.Call
@@ -36,17 +33,14 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
 
         checkBaseUrl()
-        getDeviceId(this)
+        handleBtDeviceId(this)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>, grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             REQUEST_PHONE_STATE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getDeviceId(this)
+                    handleBtDeviceId(this)
                 } else {
                     goToLogin()
 
@@ -56,35 +50,10 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("HardwareIds")
-    fun getDeviceId(context: Context) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermission()
-        } else {
-            deviceId = (context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).deviceId
-
-            if (deviceId == "")
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    deviceId = Build.getSerial()
-                } else {
-                    deviceId = Build.SERIAL
-                }
-
-            checkMacAddress()
-        }
+    fun handleBtDeviceId(context: Context) {
+        deviceId = Utils.getBtDeviceId(context)
+        checkMacAddress()
     }
-
-    private fun requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(
-                arrayOf(android.Manifest.permission.READ_PHONE_STATE),
-                REQUEST_PHONE_STATE
-            )
-        }
-    }
-
 
     private fun checkMacAddress() {
         if (checkConnectivity()) {
@@ -152,7 +121,6 @@ class SplashActivity : AppCompatActivity() {
         startActivity(i)
         finish()
     }
-
 
     private fun checkConnectivity(): Boolean {
         return Utils.isInternetconnected(this)

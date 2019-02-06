@@ -54,22 +54,29 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        // Set up the login form.
-        populateAutoComplete()
         password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 attemptLogin()
                 return@OnEditorActionListener true
+            } else {
+
+
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(password, InputMethodManager.SHOW_FORCED)
+
             }
             false
         })
 
         email_sign_in_button.setOnClickListener { attemptLogin() }
+        email.requestFocus()
+        email.isFocusableInTouchMode = true
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(email, InputMethodManager.SHOW_FORCED)
 
         prepareToolbar()
-
-        checkReadPerm()
     }
+
 
     private fun prepareToolbar() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
@@ -168,45 +175,6 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         b.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
     }
 
-    private fun checkReadPerm() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.READ_CONTACTS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(
-                    arrayOf(android.Manifest.permission.READ_CONTACTS),
-                    REQUEST_READ_CONTACTS
-                )
-            }
-        }
-    }
-
-    private fun populateAutoComplete() {
-        loaderManager.initLoader(0, null, this)
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete()
-            }
-        }
-
-        if (requestCode == REQUEST_CAMERA_ACCESS) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                launchMode()
-            }
-        }
-    }
-
     private fun closeKeyboard() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(password.windowToken, 0)
@@ -218,7 +186,6 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         startActivity(i)
         finish()
     }
-
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -288,6 +255,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 response.body()?.let {
                     if (it.status == SUCCESS) {
                         saveToken(it.token)
+                        launchMode()
                     } else {
                         Toast.makeText(this@LoginActivity, it.error_message, Toast.LENGTH_SHORT).show()
                     }

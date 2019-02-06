@@ -24,7 +24,6 @@
             android:id="@+id/tv_douchette"
             android:gravity="center"
             android:padding="32dp"
-            android:enabled="false"
             android:drawableStart="@drawable/ic_barcode_scanner"
             android:text="Scanner avec la douchette"
             android:textColor="@android:color/white"

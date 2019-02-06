@@ -1,5 +1,6 @@
 package com.whitedev.easylog
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -12,6 +13,9 @@ import com.whitedev.easylog.pojo.Barcode
 import kotlinx.android.synthetic.main.fragment_douchette.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import android.content.Context.INPUT_METHOD_SERVICE
+import android.view.inputmethod.InputMethodManager
+
 
 class DouchetteFragment : Fragment() {
 
@@ -22,6 +26,12 @@ class DouchetteFragment : Fragment() {
         fun newInstance(): DouchetteFragment {
             return DouchetteFragment()
         }
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        val imm = activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view!!.windowToken, 0)
     }
 
     override fun onResume() {
