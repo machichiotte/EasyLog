@@ -31,4 +31,9 @@
     <string name="scan_again_for_confirmation">Rescannez le QRcode pour confirmer cette valeur</string>
     <string name="close">Fermer</string>
     <string name="colis_dialog_title">Vous avez un lot de %d colis</string>
+    <string name="login_failure_msg">Something went wrong...Please try later!</string>
+    <string name="barcode_failure_msg">Problème de connexion, votre QrCode sera renvoyé plus tard !</string>
+    <string name="bluetooth_list_failure_msg">Erreur chargement liste device bluetooth compatibles !</string>
+    <string name="splash_failure_msg">Something went wrong...Please try later!</string>
+
 </resources>

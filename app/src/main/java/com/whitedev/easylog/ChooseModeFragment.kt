@@ -17,38 +17,38 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class ChooseModeFragment : Fragment() {
-
+    
     companion object {
         fun newInstance(): ChooseModeFragment {
             return ChooseModeFragment()
         }
     }
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
-
+    
     override fun onResume() {
         super.onResume()
         EventBus.getDefault().register(this)
     }
-
+    
     override fun onPause() {
         EventBus.getDefault().unregister(this)
         super.onPause()
     }
-
+    
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_choose_mode, container, false)
     }
-
+    
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         //val inflater = activity!!.menuInflater
         inflater.inflate(R.menu.menu_action_bar_choose, menu)
         return super.onCreateOptionsMenu(menu, inflater)
     }
-
+    
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle presses on the action bar items
         when (item.itemId) {
@@ -59,19 +59,19 @@ class ChooseModeFragment : Fragment() {
             else -> return super.onOptionsItemSelected(item)
         }
     }
-
+    
     private fun openSettings() {
         val dialogBuilder = AlertDialog.Builder(context!!)
         val inflater = this.layoutInflater
         val dialogView = inflater.inflate(R.layout.custom_dialog_settings, null)
         dialogBuilder.setView(dialogView)
-
+        
         val llBluetooth = dialogView.findViewById(R.id.ll_bt) as LinearLayout
         val tvDeviceId = dialogView.findViewById(R.id.tv_uuid) as TextView
         val tvBluetoothId = dialogView.findViewById(R.id.tv_bt) as TextView
-
+        
         tvDeviceId.text = Utils.getBtDeviceId(context!!)
-
+        
         if (android.provider.Settings.Secure.getString(this.context!!.contentResolver, "bluetooth_address") != null) {
             llBluetooth.visibility = View.VISIBLE
             tvBluetoothId.text =
@@ -79,16 +79,16 @@ class ChooseModeFragment : Fragment() {
         } else {
             llBluetooth.visibility = View.GONE
         }
-
+        
         val b = dialogBuilder.create()
         b.show()
     }
-
+    
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setupButtons()
     }
-
+    
     private fun setupButtons() {
         tv_scan.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
@@ -109,7 +109,7 @@ class ChooseModeFragment : Fragment() {
                     ?.commit()
             }
         }
-
+        
         tv_douchette.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.root_layout, DouchetteFragment.newInstance(), "DouchetteFragment")
@@ -117,10 +117,10 @@ class ChooseModeFragment : Fragment() {
                 ?.commit()
         }
     }
-
+    
     @Subscribe
     fun handleBarcode(event: EventShowDouchetteButton) {
         tv_douchette.isEnabled = event.isEnable
     }
-
+    
 }

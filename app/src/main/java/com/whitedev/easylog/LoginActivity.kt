@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.CursorLoader
 import android.content.Intent
 import android.content.Loader
-import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.AsyncTask
@@ -32,8 +31,6 @@ import android.widget.*
 import com.whitedev.easylog.pojo.ApiJerem
 import com.whitedev.easylog.utils.Constants.Companion.BASE_URL
 import com.whitedev.easylog.utils.Constants.Companion.PREFS_ID
-import com.whitedev.easylog.utils.Constants.Companion.REQUEST_CAMERA_ACCESS
-import com.whitedev.easylog.utils.Constants.Companion.REQUEST_READ_CONTACTS
 import com.whitedev.easylog.utils.Constants.Companion.SUCCESS
 import com.whitedev.easylog.utils.Constants.Companion.USER_BASE_URL
 import com.whitedev.easylog.utils.Constants.Companion.USER_TOKEN
@@ -50,7 +47,7 @@ import java.util.*
  */
 class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     private var mAuthTask: UserLoginTask? = null
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -59,38 +56,38 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 attemptLogin()
                 return@OnEditorActionListener true
             } else {
-
-
+                
+                
                 val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(password, InputMethodManager.SHOW_FORCED)
-
+                
             }
             false
         })
-
+        
         email_sign_in_button.setOnClickListener { attemptLogin() }
         email.requestFocus()
         email.isFocusableInTouchMode = true
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(email, InputMethodManager.SHOW_FORCED)
-
+        
         prepareToolbar()
     }
-
-
+    
+    
     private fun prepareToolbar() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         toolbar.setLogo(R.drawable.ic_launcher_foreground)
         setSupportActionBar(toolbar)
-
+        
     }
-
+    
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.menu_action_bar_login, menu)
         return super.onCreateOptionsMenu(menu)
     }
-
+    
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle presses on the action bar items
         when (item.itemId) {
@@ -101,19 +98,19 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             else -> return super.onOptionsItemSelected(item)
         }
     }
-
+    
     private fun openSettings() {
         val dialogBuilder = AlertDialog.Builder(this)
         val inflater = this.layoutInflater
         val nullParent: ViewGroup? = null
         val dialogView = inflater.inflate(R.layout.custom_dialog, nullParent)
         dialogBuilder.setView(dialogView)
-
+        
         val sharedPref = this.getSharedPreferences(PREFS_ID, MODE_PRIVATE)
-
+        
         val edt = dialogView.findViewById(R.id.edit1) as EditText
         edt.setText(checkBaseUrl())
-
+        
         dialogBuilder.setTitle(getString(R.string.login_dialog_title))
         dialogBuilder.setPositiveButton(getString(R.string.accept)) { _, _ ->
             with(sharedPref.edit()) {
@@ -124,7 +121,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 apply()
             }
             //}
-
+            
         }
         dialogBuilder.setNeutralButton(getString(R.string.reset)) { _, _ ->
             with(sharedPref.edit()) {
@@ -132,13 +129,13 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 apply()
             }
         }
-
+        
         dialogBuilder.setNegativeButton(getString(R.string.cancel)) { _, _ ->
             //pass
         }
-
+        
         val b = dialogBuilder.create()
-
+        
         edt.addTextChangedListener(object : TextWatcher {
             fun handleText() {
                 // Grab the button
@@ -147,7 +144,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                         !(edt.text.isEmpty() || (!edt.text.toString().contains("http://") && !edt.text.toString().contains(
                             "https://"
                         )))
-
+                
                 if (okButton.isEnabled) {
                     b.getButton(AlertDialog.BUTTON_POSITIVE).alpha = 1f
                     b.getButton(AlertDialog.BUTTON_POSITIVE).isClickable = true
@@ -156,75 +153,75 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                     b.getButton(AlertDialog.BUTTON_POSITIVE).isClickable = false
                 }
             }
-
+            
             override fun afterTextChanged(p0: Editable?) {
                 handleText()
             }
-
+            
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
-
+            
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
         })
-
+        
         b.show()
-
+        
         b.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
         b.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
         b.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
     }
-
+    
     private fun closeKeyboard() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(password.windowToken, 0)
         imm.hideSoftInputFromWindow(email.windowToken, 0)
     }
-
+    
     private fun launchMode() {
         val i = Intent(this@LoginActivity, ModeActivity::class.java)
         startActivity(i)
         finish()
     }
-
+    
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
     private fun attemptLogin() {
-
+        
         closeKeyboard()
-
+        
         if (mAuthTask != null) {
             return
         }
-
+        
         // Reset errors.
         email.error = null
         password.error = null
-
+        
         // Store values at the time of the login attempt.
         val emailStr = email.text.toString()
         val passwordStr = password.text.toString()
-
+        
         var cancel = false
         var focusView: View? = null
-
+        
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(passwordStr) && !isPasswordValid(passwordStr)) {
             password.error = getString(R.string.error_invalid_password)
             focusView = password
             cancel = true
         }
-
+        
         // Check for a valid email address.
         if (TextUtils.isEmpty(emailStr)) {
             email.error = getString(R.string.error_field_required)
             focusView = email
             cancel = true
         }
-
+        
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -235,23 +232,23 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             showProgress(true)
             mAuthTask = UserLoginTask(emailStr, passwordStr)
             mAuthTask!!.execute(null as Void?)
-
+            
         }
     }
-
+    
     private fun checkLoginPassword(emailStr: String, passwordStr: String) {
         val retrofit = Retrofit.Builder()
             .baseUrl(checkBaseUrl())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
+        
         val service = retrofit.create(InterfaceApi::class.java)
-
+        
         val call: Call<ApiJerem> = service.getLoginAuth(emailStr, passwordStr)
-
+        
         call.enqueue(object : Callback<ApiJerem> {
             override fun onResponse(call: Call<ApiJerem>, response: Response<ApiJerem>) {
-
+                
                 response.body()?.let {
                     if (it.status == SUCCESS) {
                         saveToken(it.token)
@@ -261,14 +258,14 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                     }
                 }
             }
-
+            
             override fun onFailure(call: Call<ApiJerem>, t: Throwable) {
-                Toast.makeText(this@LoginActivity, "Something went wrong...Please try later!", Toast.LENGTH_SHORT)
+                Toast.makeText(this@LoginActivity, getString(R.string.login_failure_msg), Toast.LENGTH_SHORT)
                     .show()
             }
         })
     }
-
+    
     private fun saveToken(token: String?) {
         token?.let {
             val sharedPref = this.getSharedPreferences(PREFS_ID, Context.MODE_PRIVATE) ?: return
@@ -278,11 +275,11 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             }
         }
     }
-
+    
     private fun isPasswordValid(password: String): Boolean {
         return password.length > 4
     }
-
+    
     /**
      * Shows the progress UI and hides the login form.
      */
@@ -292,7 +289,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
         val shortAnimTime = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
-
+        
         login_form.visibility = if (show) View.GONE else View.VISIBLE
         login_form.animate()
             .setDuration(shortAnimTime)
@@ -302,7 +299,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                     login_form.visibility = if (show) View.GONE else View.VISIBLE
                 }
             })
-
+        
         login_progress.visibility = if (show) View.VISIBLE else View.GONE
         login_progress.animate()
             .setDuration(shortAnimTime)
@@ -312,9 +309,9 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                     login_progress.visibility = if (show) View.VISIBLE else View.GONE
                 }
             })
-
+        
     }
-
+    
     override fun onCreateLoader(i: Int, bundle: Bundle?): Loader<Cursor> {
         return CursorLoader(
             this,
@@ -323,19 +320,19 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 ContactsContract.Profile.CONTENT_URI,
                 ContactsContract.Contacts.Data.CONTENT_DIRECTORY
             ), ProfileQuery.PROJECTION,
-
+            
             // Select only email addresses.
             ContactsContract.Contacts.Data.MIMETYPE + " = ?", arrayOf(
                 ContactsContract.CommonDataKinds.Email
                     .CONTENT_ITEM_TYPE
             ),
-
+            
             // Show primary email addresses first. Note that there won't be
             // a primary email address if the user hasn't specified one.
             ContactsContract.Contacts.Data.IS_PRIMARY + " DESC"
         )
     }
-
+    
     override fun onLoadFinished(cursorLoader: Loader<Cursor>, cursor: Cursor) {
         val emails = ArrayList<String>()
         cursor.moveToFirst()
@@ -343,24 +340,24 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             emails.add(cursor.getString(ProfileQuery.ADDRESS))
             cursor.moveToNext()
         }
-
+        
         addEmailsToAutoComplete(emails)
     }
-
+    
     override fun onLoaderReset(cursorLoader: Loader<Cursor>) {
-
+    
     }
-
+    
     private fun addEmailsToAutoComplete(emailAddressCollection: List<String>) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         val adapter = ArrayAdapter(
             this@LoginActivity,
             android.R.layout.simple_dropdown_item_1line, emailAddressCollection
         )
-
+        
         email.setAdapter(adapter)
     }
-
+    
     object ProfileQuery {
         val PROJECTION = arrayOf(
             ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -368,28 +365,28 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         )
         val ADDRESS = 0
     }
-
+    
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
     inner class UserLoginTask internal constructor(private val mEmail: String, private val mPassword: String) :
         AsyncTask<Void, Void, Boolean>() {
-
+        
         override fun doInBackground(vararg params: Void): Boolean? {
             try {
                 Thread.sleep(2000)
             } catch (e: InterruptedException) {
                 return false
             }
-
+            
             return true
         }
-
+        
         override fun onPostExecute(success: Boolean?) {
             mAuthTask = null
             showProgress(false)
-
+            
             if (success!!) {
                 checkLoginPassword(mEmail, mPassword)
             } else {
@@ -397,21 +394,21 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 password.requestFocus()
             }
         }
-
+        
         override fun onCancelled() {
             mAuthTask = null
             showProgress(false)
         }
     }
-
+    
     private fun checkBaseUrl(): String {
         var baseUrl = BASE_URL
-
+        
         getSharedPreferences(PREFS_ID, MODE_PRIVATE).getString(USER_BASE_URL, null)?.let {
             baseUrl = it
         }
-
+        
         return baseUrl
     }
-
+    
 }

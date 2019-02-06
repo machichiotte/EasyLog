@@ -17,20 +17,20 @@ import com.whitedev.easylog.utils.Constants.Companion.PREFS_ID
 import com.whitedev.easylog.utils.Constants.Companion.USER_BASE_URL
 
 class Utils {
-
+    
     companion object {
-
+        
         fun showSnackBar(content: String, isSuccess: Boolean, view: View) {
             val snackBar = Snackbar.make(
                 view, // Parent view
                 content, // Message to show
                 Snackbar.LENGTH_LONG // How long to display the message.
             )
-
+            
             // change snackbar text color
             val snackbarTextId = android.support.design.R.id.snackbar_text
             val textView = snackBar.view.findViewById(snackbarTextId) as TextView
-
+            
             if (isSuccess)
                 textView.setTextColor(
                     ContextCompat.getColor(view.context, android.R.color.holo_green_light)
@@ -39,16 +39,16 @@ class Utils {
                 textView.setTextColor(
                     ContextCompat.getColor(view.context, android.R.color.holo_red_light)
                 )
-
+            
             snackBar.show()
         }
-
+        
         fun isInternetconnected(ct: Context): Boolean {
-
+            
             //todo remettre quand phone
             return true
-
-
+            
+            
             /*
               val connected: Boolean
               //get the connectivity manager object to identify the network state.
@@ -67,21 +67,21 @@ class Utils {
               } else {
                   return false
               } */
-
+            
         }
-
+        
         fun playNotif(context: Context?, isSuccess: Boolean) = try {
             val mPlayer: MediaPlayer = if (isSuccess)
                 MediaPlayer.create(context, R.raw.plucky)
             else
                 MediaPlayer.create(context, R.raw.error)
-
+            
             mPlayer.start()
-
+            
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
+        
         fun showDialogColis(context: Context?, nbColis: Int) {
             context?.let {
                 AlertDialog.Builder(it)
@@ -94,19 +94,19 @@ class Utils {
                     .show()
             }
         }
-
+        
         fun checkBaseUrl(activity: Activity): String {
             var baseUrl = BASE_URL
-
+            
             activity.getSharedPreferences(PREFS_ID, AppCompatActivity.MODE_PRIVATE)?.getString(USER_BASE_URL, null)
                 ?.let {
                     baseUrl = it
                 }
-
+            
             return baseUrl
         }
-
-
+        
+        
         @SuppressLint("HardwareIds")
         fun getBtDeviceId(context: Context): String {
             return Settings.Secure.getString(

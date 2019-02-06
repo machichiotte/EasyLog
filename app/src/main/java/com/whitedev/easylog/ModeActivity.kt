@@ -10,11 +10,7 @@ import android.os.Handler
 import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
-import android.util.Log
-import android.util.Log.e
 import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuInflater
 import android.widget.Toast
 import com.github.ivbaranov.rxbluetooth.RxBluetooth
 import com.whitedev.easylog.event.EventCamera
@@ -23,10 +19,15 @@ import com.whitedev.easylog.event.EventRestartCamera
 import com.whitedev.easylog.event.EventShowDouchetteButton
 import com.whitedev.easylog.pojo.ApiJerem
 import com.whitedev.easylog.pojo.Barcode
+import com.whitedev.easylog.utils.Constants.Companion.ENVOYE
+import com.whitedev.easylog.utils.Constants.Companion.ERROR
 import com.whitedev.easylog.utils.Constants.Companion.ERROR_EXPIRED_TOKEN
+import com.whitedev.easylog.utils.Constants.Companion.FAILURE
+import com.whitedev.easylog.utils.Constants.Companion.NOT_CONFIRM
 import com.whitedev.easylog.utils.Constants.Companion.PREFS_ID
 import com.whitedev.easylog.utils.Constants.Companion.SUCCESS
 import com.whitedev.easylog.utils.Constants.Companion.USER_TOKEN
+import com.whitedev.easylog.utils.Constants.Companion.ZONE
 import com.whitedev.easylog.utils.Utils
 import kotlinx.android.synthetic.main.activity_mode.*
 import org.greenrobot.eventbus.EventBus
@@ -40,54 +41,54 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
 class ModeActivity : AppCompatActivity() {
-
+    
     private lateinit var toolbar: Toolbar
     private lateinit var token: String
     lateinit var barcodeList: ArrayList<Barcode>
     private var successMsg: String? = null
-
+    
     val rxBluetooth = RxBluetooth(this)
-
+    
     var datacode = ""
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mode)
-
+        
         barcodeList = ArrayList()
         toolbar = toolbar_mode
-
+        
         token = getSharedPreferences(PREFS_ID, AppCompatActivity.MODE_PRIVATE)!!.getString(
             USER_TOKEN, ""
         )
-
+        
         prepareToolbar(-1, null)
-
+        
         startChooseMode(savedInstanceState)
-
+        
         getMacAddressListBt()
-
+        
     }
-
+    
     override fun onResume() {
         super.onResume()
-
+        
         prepareBt()
-
+        
         EventBus.getDefault().register(this)
         registerReceiver(netSwitchReceiver, IntentFilter(NetworkChangeReceiver.NETWORK_SWITCH_FILTER))
     }
-
+    
     override fun onPause() {
         EventBus.getDefault().unregister(this)
         unregisterReceiver(netSwitchReceiver)
-
+        
         rxBluetooth.observeAclEvent().observeOn(AndroidSchedulers.mainThread())
             .unsubscribeOn(Schedulers.computation())
-
+        
         super.onPause()
     }
-
+    
     //For douchette only
     override fun onKeyDown(keyCode: Int, msg: KeyEvent): Boolean {
         return when (msg.keyCode) {
@@ -100,26 +101,26 @@ class ModeActivity : AppCompatActivity() {
                 }
                 false
             }
-
+            
             //fin de scan douchette
             66 -> {
                 sendData(datacode)
                 datacode = ""
                 false
             }
-
+            
             //keycode pour les chiffres 1..9
             7, 8, 9, 10, 11, 12, 13, 14, 15, 16 -> {
                 datacode += msg.unicodeChar.toChar()
                 true
             }
-
+            
             else -> {
                 true
             }
         }
     }
-
+    
     private fun startChooseMode(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
             supportFragmentManager
@@ -128,7 +129,7 @@ class ModeActivity : AppCompatActivity() {
                 .commit()
         }
     }
-
+    
     private fun prepareToolbar(zone: Int, description: String?) {
         if (zone > 0) {
             toolbar.title = getString(R.string.zone_space) + zone
@@ -137,18 +138,18 @@ class ModeActivity : AppCompatActivity() {
             toolbar.title = getString(R.string.unknown_zone)
             toolbar.subtitle = getString(R.string.unknown_zone_subtitle)
         }
-
+        
         this.setSupportActionBar(toolbar)
     }
-
+    
     private fun prepareBt() {
-
+        
         if (null != Settings.Secure.getString(this.baseContext.contentResolver, "bluetooth_address")) {
             EventBus.getDefault().post(EventShowDouchetteButton(true))
         } else {
             EventBus.getDefault().post(EventShowDouchetteButton(false))
         }
-
+        
         rxBluetooth.observeAclEvent()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(Schedulers.computation())
@@ -159,34 +160,26 @@ class ModeActivity : AppCompatActivity() {
                             this.baseContext.contentResolver,
                             "bluetooth_address"
                         )
-
-                        //todo pas utile si deviceId bien géré
-                        EventBus.getDefault().post(EventShowDouchetteButton(true))
-
-
-
-                        e("test", "btdevice::"+btDevice)
+                        
                         listDevicesBt.filter { s ->
-                            e("test", "listdevice::"+s)
-
                             if (s == btDevice) {
                                 EventBus.getDefault().post(EventShowDouchetteButton(true))
                             }
                             true
                         }
                     }
-
+                    
                     BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                         EventBus.getDefault().post(EventShowDouchetteButton(false))
                         if (fragmentManager.backStackEntryCount > 0) {
                             fragmentManager.popBackStack()
                         }
                     }
-
+                    
                 }
             }
     }
-
+    
     private fun sendData(data: String) {
         if (prepareSend())
             if (!data.isEmpty()) {
@@ -197,31 +190,31 @@ class ModeActivity : AppCompatActivity() {
                         .build()
                     val service = retrofit.create(InterfaceApi::class.java)
                     val call: Call<ApiJerem> = service.getQrCodeStatus(token, data)
-
+                    
                     call.enqueue(object : Callback<ApiJerem> {
                         override fun onResponse(call: Call<ApiJerem>, response: Response<ApiJerem>) {
                             response.body()?.let { it ->
                                 if (it.status == SUCCESS) {
                                     EventBus.getDefault().post(EventRestartCamera())
-
+                                    
                                     Utils.playNotif(this@ModeActivity, true)
-                                    Utils.showSnackBar("SUCCESS:$data", true, activity_mode_layout)
-
+                                    Utils.showSnackBar("$SUCCESS:$data", true, activity_mode_layout)
+                                    
                                     if (null != it.number_zone) {
                                         prepareToolbar(it.number_zone, it.description_zone)
-
-                                        handleSentDataResult(data, "ZONE")
-
+                                        
+                                        handleSentDataResult(data, ZONE)
+                                        
                                     } else if (it.success_message != null && (successMsg == null || successMsg != it.success_message) && null != it.quantity && it.quantity > 1) {
                                         successMsg = it.success_message
                                         Utils.showDialogColis(this@ModeActivity, it.quantity)
-                                        handleSentDataResult(data, "NON_CONFIRME")
+                                        handleSentDataResult(data, NOT_CONFIRM)
                                     } else {
-                                        handleSentDataResult(data, "ENVOYE")
+                                        handleSentDataResult(data, ENVOYE)
                                     }
                                 } else {
                                     it.error_message?.let { it1 -> handleSentDataResult(data, it1) }
-
+                                    
                                     when (it.error_message) {
                                         ERROR_EXPIRED_TOKEN -> {
                                             val i = Intent(this@ModeActivity, SplashActivity::class.java)
@@ -231,18 +224,22 @@ class ModeActivity : AppCompatActivity() {
                                         else -> {
                                             EventBus.getDefault().post(EventRestartCamera())
                                             Utils.playNotif(this@ModeActivity, false)
-                                            Utils.showSnackBar("ERROR:" + it.error_message, false, activity_mode_layout)
+                                            Utils.showSnackBar(
+                                                ERROR + ":" + it.error_message,
+                                                false,
+                                                activity_mode_layout
+                                            )
                                         }
                                     }
                                 }
                             }
                         }
-
+                        
                         override fun onFailure(call: Call<ApiJerem>, t: Throwable) {
-                            handleSentDataResult(data, "FAILURE")
+                            handleSentDataResult(data, FAILURE)
                             Toast.makeText(
                                 this@ModeActivity,
-                                "Problème de connexion, votre QrCode sera renvoyé plus tard !",
+                                getString(R.string.barcode_failure_msg),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -250,9 +247,9 @@ class ModeActivity : AppCompatActivity() {
                 }
             }
     }
-
+    
     lateinit var listDevicesBt: List<String>
-
+    
     private fun getMacAddressListBt() {
         token.let { tok ->
             val retrofit = Retrofit.Builder()
@@ -260,9 +257,9 @@ class ModeActivity : AppCompatActivity() {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
             val service = retrofit.create(InterfaceApi::class.java)
-
+            
             val call: Call<ApiJerem> = service.getListMacScanner(tok)
-
+            
             call.enqueue(object : Callback<ApiJerem> {
                 override fun onResponse(call: Call<ApiJerem>, response: Response<ApiJerem>) {
                     Handler().postDelayed({
@@ -275,70 +272,70 @@ class ModeActivity : AppCompatActivity() {
                         }
                     }, 1500)
                 }
-
+                
                 override fun onFailure(call: Call<ApiJerem>, t: Throwable) {
                     Toast.makeText(
                         this@ModeActivity,
-                        "Erreur chargement liste device bluetooth compatibles !",
+                        getString(R.string.bluetooth_list_failure_msg),
                         Toast.LENGTH_SHORT
                     )
                         .show()
                 }
             })
-
+            
         }
     }
-
-
+    
+    
     private fun handleSentDataResult(code: String, status: String) {
         //on supprime ici un élément qui demande un double scan pour le rajouté ensuite avec son nouveau status (SUCCESS)
         barcodeList.filterIndexed { index, barcode ->
-            if (barcode.barcodeValue == code && barcode.sentMsg == "NON_CONFIRME") {
+            if (barcode.barcodeValue == code && barcode.sentMsg == NOT_CONFIRM) {
                 barcodeList.removeAt(index)
             }
             true
         }
-
+        
         barcodeList.add(Barcode(code, status))
         EventBus.getDefault().post(EventDouchette(code, status))
     }
-
+    
     //if network has been lost --> FAILURE
     private var netSwitchReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val isConnectionAvailable = intent.extras.getBoolean("is_connected")
-
+            
             if (isConnectionAvailable) {
                 if (barcodeList.size > 0) {
                     for (barcode: Barcode in barcodeList) {
-                        if (barcode.sentMsg == "FAILURE") {
+                        if (barcode.sentMsg == FAILURE) {
                             barcodeList.remove(barcode)
                             sendData(barcode.barcodeValue)
                         }
                     }
                 }
-                Utils.showSnackBar("SUCCESS: CONNECTIVITY", true, activity_mode_layout)
+                Utils.showSnackBar("$SUCCESS: CONNECTIVITY", true, activity_mode_layout)
                 Toast.makeText(
                     context,
-                    "Yep",
+                    "Connecté",
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                Utils.showSnackBar("ERROR:NO CONNECTIVITY", false, activity_mode_layout)
+                Utils.showSnackBar("$ERROR: NO CONNECTIVITY", false, activity_mode_layout)
                 Toast.makeText(
                     context,
-                    "NOPE!",
+                    "Non connecté !",
                     Toast.LENGTH_SHORT
                 ).show()
             }
         }
     }
-
+    
     private fun prepareSend(): Boolean {
         val myFragment = supportFragmentManager.findFragmentByTag("ChooseModeFragment")
         return (null != myFragment && !myFragment.isVisible)
     }
-
+    
     @Subscribe
     fun handleSendEvent(event: EventCamera) {
         sendData(event.data)
