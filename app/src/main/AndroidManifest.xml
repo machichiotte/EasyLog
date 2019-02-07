@@ -48,10 +48,14 @@
         </activity>
 
         <activity
+                android:configChanges="orientation"
+                android:screenOrientation="portrait"
                 android:name=".LoginActivity"
                 android:windowSoftInputMode="stateVisible"
                 android:theme="@style/AppThemeNoTitle"/>
         <activity
+                android:configChanges="orientation"
+                android:screenOrientation="portrait"
                 android:name=".ModeActivity"
                 android:theme="@style/AppThemeNoTitle"/>
     </application>

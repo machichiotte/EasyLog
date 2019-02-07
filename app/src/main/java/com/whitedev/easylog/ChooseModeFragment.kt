@@ -89,6 +89,32 @@ class ChooseModeFragment : Fragment() {
         setupButtons()
     }
     
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>, grantResults: IntArray
+    ) {
+        when (requestCode) {
+            Constants.REQUEST_CAMERA_ACCESS -> {
+                redirectCameraFragment()
+                return
+            }
+        }
+    }
+    
+    private fun redirectCameraFragment() {
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.replace(R.id.root_layout, ScannerFragment.newInstance(), "CameraFragment")
+            ?.addToBackStack("CameraFragment")
+            ?.commit()
+    }
+    
+    private fun redirectDouchetteFragment() {
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.replace(R.id.root_layout, DouchetteFragment.newInstance(), "DouchetteFragment")
+            ?.addToBackStack("DouchetteFragment")
+            ?.commit()
+    }
+    
     private fun setupButtons() {
         tv_scan.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
@@ -103,18 +129,12 @@ class ChooseModeFragment : Fragment() {
                     )
                 }
             } else {
-                activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(R.id.root_layout, ScannerFragment.newInstance(), "ScannerFragment")
-                    ?.addToBackStack("ScannerFragment")
-                    ?.commit()
+                redirectCameraFragment()
             }
         }
         
         tv_douchette.setOnClickListener {
-            activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.root_layout, DouchetteFragment.newInstance(), "DouchetteFragment")
-                ?.addToBackStack("DouchetteFragment")
-                ?.commit()
+            redirectDouchetteFragment()
         }
     }
     
