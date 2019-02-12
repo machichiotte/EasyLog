@@ -35,5 +35,11 @@
     <string name="barcode_failure_msg">Problème de connexion, votre QrCode sera renvoyé plus tard !</string>
     <string name="bluetooth_list_failure_msg">Erreur chargement liste device bluetooth compatibles !</string>
     <string name="splash_failure_msg">Something went wrong...Please try later!</string>
+    <string name="scan_with_device">Scanner avec la douchette</string>
+    <string name="send_data_again">Renvoyer les données</string>
+    <string name="scan_with_camera">Scanner avec la camera</string>
+    <string name="smartphone_id">Identifiant de votre appareil :</string>
+    <string name="bluetooth_device_id">Identifiant de votre device bluetooth :</string>
+    <string name="scan_list">Liste des scans</string>
 
 </resources>

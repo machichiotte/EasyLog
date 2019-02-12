@@ -1,6 +1,7 @@
 package com.whitedev.easylog
 
 import android.content.Context
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -17,26 +18,25 @@ import kotlinx.android.synthetic.main.item_barcode.view.*
 
 class BarcodeAdapter(val items: ArrayList<Barcode>, val context: Context?) : RecyclerView.Adapter<ViewHolder>() {
     
-    // Gets the number of animals in the list
     override fun getItemCount(): Int {
         return items.size
     }
     
-    // Inflates the item views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_barcode, parent, false))
     }
     
-    // Binds each animal in the ArrayList to a view
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.tvBarcode.text = items[position].barcodeValue + " : "
         holder.tvSent.text = items[position].sentMsg
         
         when (holder.tvSent.text) {
             ENVOYE -> {
-                holder.tvBarcode.setTextColor(context!!.resources.getColor(R.color.green))
-                holder.tvSent.setTextColor(context!!.resources.getColor(R.color.green))
-                
+                context?.let {
+                    holder.tvBarcode.setTextColor(ContextCompat.getColor(it, R.color.green))
+                    holder.tvSent.setTextColor(ContextCompat.getColor(it, R.color.green))
+                    
+                }
             }
             ZONE -> {
             }
@@ -45,8 +45,10 @@ class BarcodeAdapter(val items: ArrayList<Barcode>, val context: Context?) : Rec
             ERROR_MISSING_ZONE,
             ERROR_MISSING_TRACKING,
             ERROR_EXPIRED_TOKEN -> {
-                holder.tvBarcode.setTextColor(context!!.resources.getColor(R.color.red))
-                holder.tvSent.setTextColor(context!!.resources.getColor(R.color.red))
+                context?.let {
+                    holder.tvBarcode.setTextColor(ContextCompat.getColor(it, R.color.red))
+                    holder.tvSent.setTextColor(ContextCompat.getColor(it, R.color.red))
+                }
             }
             FAILURE -> {
             }

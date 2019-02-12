@@ -1,5 +1,6 @@
 package com.whitedev.easylog
 
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -11,12 +12,15 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.whitedev.easylog.event.EventShowDouchetteButton
 import com.whitedev.easylog.utils.Constants
+import com.whitedev.easylog.utils.Constants.Companion.FAILURE
 import com.whitedev.easylog.utils.Utils
 import kotlinx.android.synthetic.main.fragment_choose_mode.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class ChooseModeFragment : Fragment() {
+    
+    private lateinit var mListener: ModeActivityInterface
     
     companion object {
         fun newInstance(): ChooseModeFragment {
@@ -29,9 +33,32 @@ class ChooseModeFragment : Fragment() {
         setHasOptionsMenu(true)
     }
     
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        try {
+            mListener = activity as ModeActivityInterface
+        } catch (e: ClassCastException) {
+            throw ClassCastException(activity.toString() + " must implement MyInterface ")
+        }
+    }
+    
     override fun onResume() {
         super.onResume()
         EventBus.getDefault().register(this)
+        
+        if (isBarcodeNotSent())
+            tv_send_data.visibility = View.VISIBLE
+        else
+            tv_send_data.visibility = View.GONE
+    }
+    
+    private fun isBarcodeNotSent(): Boolean {
+        for (barcode in mListener.getBarcodes) {
+            if (barcode.sentMsg == FAILURE) {
+                return true
+            }
+        }
+        return false
     }
     
     override fun onPause() {
@@ -44,19 +71,18 @@ class ChooseModeFragment : Fragment() {
     }
     
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        //val inflater = activity!!.menuInflater
         inflater.inflate(R.menu.menu_action_bar_choose, menu)
         return super.onCreateOptionsMenu(menu, inflater)
     }
     
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle presses on the action bar items
-        when (item.itemId) {
+        return when (item.itemId) {
             R.id.action_scan_settings -> {
                 openSettings()
-                return true
+                true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
     

@@ -10,22 +10,42 @@
 
     <TextView
             android:id="@+id/tv_scan"
-            android:text="Scanner avec votre appareil"
+            android:layout_weight="1"
+            android:text="@string/scan_with_camera"
             android:layout_width="match_parent"
             android:gravity="center"
             android:drawableStart="@drawable/ic_camera_alt_black_24dp"
             android:padding="32dp"
             android:background="@drawable/button_bg_selector"
             android:textColor="#ffffff"
-            android:layout_marginBottom="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:layout_height="wrap_content"/>
 
     <TextView
+            android:layout_weight="1"
             android:id="@+id/tv_douchette"
             android:gravity="center"
             android:padding="32dp"
             android:drawableStart="@drawable/ic_barcode_scanner"
-            android:text="Scanner avec la douchette"
+            android:text="@string/scan_with_device"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/button_bg_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:layout_weight="1"
+            android:id="@+id/tv_send_data"
+            android:gravity="center"
+            android:visibility="gone"
+            android:padding="32dp"
+            android:drawableStart="@drawable/ic_send_24dp"
+            android:text="@string/send_data_again"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:textColor="@android:color/white"
             android:background="@drawable/button_bg_selector"
             android:layout_width="match_parent"

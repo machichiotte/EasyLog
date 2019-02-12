@@ -6,14 +6,15 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-public class NetworkChangeReceiver extends BroadcastReceiver {
+import java.util.Objects;
 
+public class NetworkChangeReceiver extends BroadcastReceiver {
 
     public static final String NETWORK_SWITCH_FILTER = "com.devglan.broadcastreceiver.NETWORK_SWITCH_FILTER";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equalsIgnoreCase("android.net.conn.CONNECTIVITY_CHANGE")) {
+        if (Objects.requireNonNull(intent.getAction()).equalsIgnoreCase("android.net.conn.CONNECTIVITY_CHANGE")) {
 
             NetworkInfo networkInfo =
                     intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);

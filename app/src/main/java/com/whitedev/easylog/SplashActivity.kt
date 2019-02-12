@@ -49,7 +49,7 @@ class SplashActivity : AppCompatActivity() {
         }
     }
     
-    fun handleBtDeviceId(context: Context) {
+    private fun handleBtDeviceId(context: Context) {
         deviceId = Utils.getBtDeviceId(context)
         checkMacAddress()
     }

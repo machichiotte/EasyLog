@@ -16,11 +16,10 @@ import kotlinx.android.synthetic.main.fragment_douchette.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-
 class DouchetteFragment : Fragment() {
     
-    lateinit var barcodeList: ArrayList<Barcode>
-    var barcode: String = ""
+    private lateinit var barcodeList: ArrayList<Barcode>
+    private var barcode: String = ""
     
     companion object {
         fun newInstance(): DouchetteFragment {

@@ -40,16 +40,14 @@ import retrofit2.converter.gson.GsonConverterFactory
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
-class ModeActivity : AppCompatActivity() {
-    
+class ModeActivity : AppCompatActivity(), ModeActivityInterface {
+   
+    lateinit var barcodeList: ArrayList<Barcode>
     private lateinit var toolbar: Toolbar
     private lateinit var token: String
-    lateinit var barcodeList: ArrayList<Barcode>
     private var successMsg: String? = null
-    
-    val rxBluetooth = RxBluetooth(this)
-    
-    var datacode = ""
+    private val rxBluetooth = RxBluetooth(this)
+    private var datacode = ""
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,18 +61,16 @@ class ModeActivity : AppCompatActivity() {
         )
         
         prepareToolbar(-1, null)
-        
         startChooseMode(savedInstanceState)
-        
         getMacAddressListBt()
-        
     }
+    
+    override val getBarcodes: ArrayList<Barcode>
+        get() = barcodeList
     
     override fun onResume() {
         super.onResume()
-        
         prepareBt()
-        
         EventBus.getDefault().register(this)
         registerReceiver(netSwitchReceiver, IntentFilter(NetworkChangeReceiver.NETWORK_SWITCH_FILTER))
     }

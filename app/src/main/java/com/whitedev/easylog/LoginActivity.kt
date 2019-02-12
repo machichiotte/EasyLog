@@ -90,12 +90,12 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle presses on the action bar items
-        when (item.itemId) {
+        return when (item.itemId) {
             R.id.action_settings -> {
                 openSettings()
-                return true
+                true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
     
@@ -363,7 +363,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             ContactsContract.CommonDataKinds.Email.ADDRESS,
             ContactsContract.CommonDataKinds.Email.IS_PRIMARY
         )
-        val ADDRESS = 0
+        const val ADDRESS = 0
     }
     
     /**
