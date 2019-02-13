@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.fragment_choose_mode.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
+
 class ChooseModeFragment : Fragment() {
     
     private lateinit var mListener: ModeActivityInterface
@@ -96,14 +97,15 @@ class ChooseModeFragment : Fragment() {
         val tvDeviceId = dialogView.findViewById(R.id.tv_uuid) as TextView
         val tvBluetoothId = dialogView.findViewById(R.id.tv_bt) as TextView
         
-        tvDeviceId.text = Utils.getBtDeviceId(context!!)
+        tvDeviceId.text = Utils.getDeviceId(context!!)
         
-        if (android.provider.Settings.Secure.getString(this.context!!.contentResolver, "bluetooth_address") != null) {
-            llBluetooth.visibility = View.VISIBLE
-            tvBluetoothId.text =
-                    android.provider.Settings.Secure.getString(this.context!!.contentResolver, "bluetooth_address")
-        } else {
-            llBluetooth.visibility = View.GONE
+        this.context?.let {
+            if (Utils.getBluetoothMac(it) != null) {
+                llBluetooth.visibility = View.VISIBLE
+                tvBluetoothId.text = Utils.getBluetoothMac(it)
+            } else {
+                llBluetooth.visibility = View.GONE
+            }
         }
         
         val b = dialogBuilder.create()

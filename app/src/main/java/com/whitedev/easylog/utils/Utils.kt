@@ -1,9 +1,13 @@
 package com.whitedev.easylog.utils
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.MediaPlayer
+import android.os.Build
 import android.provider.Settings
 import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
@@ -106,13 +110,34 @@ class Utils {
             return baseUrl
         }
         
+        @SuppressLint("HardwareIds")
+        fun getBluetoothMac(context: Context): String? {
+            var result: String? = null
+            if (context.checkCallingOrSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    // Hardware ID are restricted in Android 6+
+                    // https://developer.android.com/about/versions/marshmallow/android-6.0-changes.html#behavior-hardware-id
+                    // Getting bluetooth mac via reflection for devices with Android 6+
+                    result = android.provider.Settings.Secure.getString(
+                        context.contentResolver,
+                        "bluetooth_address"
+                    )
+                } else {
+                    val bta = BluetoothAdapter.getDefaultAdapter()
+                    result = if (bta != null) bta.address else ""
+                }
+            }
+            return result
+        }
         
         @SuppressLint("HardwareIds")
-        fun getBtDeviceId(context: Context): String {
+        fun getDeviceId(context: Context): String {
             return Settings.Secure.getString(
                 context.contentResolver,
                 Settings.Secure.ANDROID_ID
             )
         }
+        
+        
     }
 }

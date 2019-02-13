@@ -32,14 +32,14 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
         
         checkBaseUrl()
-        handleBtDeviceId(this)
+        handleDeviceId(this)
     }
     
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             REQUEST_PHONE_STATE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    handleBtDeviceId(this)
+                    handleDeviceId(this)
                 } else {
                     goToLogin()
                     
@@ -49,8 +49,8 @@ class SplashActivity : AppCompatActivity() {
         }
     }
     
-    private fun handleBtDeviceId(context: Context) {
-        deviceId = Utils.getBtDeviceId(context)
+    private fun handleDeviceId(context: Context) {
+        deviceId = Utils.getDeviceId(context)
         checkMacAddress()
     }
     
